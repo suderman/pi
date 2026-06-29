@@ -1,12 +1,13 @@
 {
   "defaultProvider": "codex-lb",
   "defaultModel": "gpt-5.5",
-  "defaultThinkingLevel": "medium",
+  "defaultThinkingLevel": "high",
   "enabledModels": [
     "codex-lb/gpt-5.5",
     "minimax/MiniMax-M3"
   ],
   "transport": "sse",
   "lastChangelogVersion": "0.80.2",
-  "theme": "dark"
+  "theme": "dark",
+  "hideThinkingBlock": false
 }
