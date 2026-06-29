@@ -1,0 +1,11 @@
+{
+  "defaultProvider": "codex-lb",
+  "defaultModel": "gpt-5.5",
+  "defaultThinkingLevel": "medium",
+  "enabledModels": [
+    "codex-lb/*"
+  ],
+  "transport": "sse",
+  "lastChangelogVersion": "0.80.2",
+  "theme": "dark"
+}
