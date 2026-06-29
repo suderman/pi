@@ -73,6 +73,18 @@
           }
         }
       ]
+    },
+    "minimax": {
+      "apiKey": "$MINIMAX_API_KEY",
+      "modelOverrides": {
+        "MiniMax-M3": {
+          "thinkingLevelMap": {
+            "minimal": null,
+            "low": null,
+            "medium": null
+          }
+        }
+      }
     }
   }
 }
