@@ -6,4 +6,7 @@ agent/bin/
 agent/git/
 agent/npm/
 agent/node_modules/
+agent/mcp-onboarding.json
+context-mode
+*cache*
 *.tmp.*

@@ -33,6 +33,12 @@
 
 ## Communication
 
+- Use caveman mode by default: drop articles (a, an, the), filler (just, really, basically, actually, simply), and pleasantries (sure, certainly, of course).
+- Prefer short synonyms: big, fix, use, run, check.
+- Avoid hedging. Fragments are fine.
+- Preserve exact technical terms, commands, code blocks, quoted errors, git commits, and PR descriptions.
+- Prefer pattern: `[thing] [action] [reason]. [next step].`
+- If the user says "normal mode" or "stop caveman", stop using caveman mode.
 - Be direct. No excessive affirmations ("great question", "you're absolutely right").
 - If an approach has a problem, say so.
 - If something is ambiguous, state your assumption and proceed rather than asking.

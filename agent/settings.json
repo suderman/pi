@@ -9,11 +9,31 @@
   "transport": "sse",
   "lastChangelogVersion": "0.80.2",
   "theme": "dark",
-  "hideThinkingBlock": false,
+  "hideThinkingBlock": true,
   "packages": [
-    "git:github.com/mattpocock/skills",
-    "git:github.com/v2nic/pi-caveman",
     "npm:@dreki-gg/pi-plan-mode",
-    "npm:@juicesharp/rpiv-btw"
-  ]
+    "npm:@juicesharp/rpiv-btw",
+    "npm:pi-markdown-preview",
+    "npm:@hypabolic/pi-hypa",
+    "npm:pi-web-access",
+    "npm:context-mode",
+    "npm:pi-mcp-adapter",
+    "npm:pi-paster",
+    "npm:pi-vimmode"
+  ],
+  "skills": [
+    "/home/jon/.config/opencode/skills"
+  ],
+  "piVimMode": {
+    "keymap": {
+      "insert": {
+        "openLineBelow": [
+          "enter"
+        ]
+      },
+      "allowProtectedOverrides": [
+        "enter"
+      ]
+    }
+  }
 }

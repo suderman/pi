@@ -19,13 +19,13 @@ interface MmxSearchResponse {
 
 export default function (pi: ExtensionAPI) {
   pi.registerTool({
-    name: "web_search",
+    name: "web_search_mmx",
     label: "Web Search",
     description:
       "Search the web via `mmx search query`. Returns titles, URLs, and snippets.",
     promptSnippet: "Search the web for current information",
     promptGuidelines: [
-      "Use web_search when you need up-to-date info beyond your training cutoff, look up libraries/docs, verify facts, or find current news.",
+      "Use web_search_mmx when you need up-to-date info beyond your training cutoff, look up libraries/docs, verify facts, or find current news.",
     ],
     parameters: Type.Object({
       query: Type.String({ description: "Search query string" }),
@@ -101,7 +101,7 @@ export default function (pi: ExtensionAPI) {
         return;
       }
       pi.sendUserMessage(
-        `Use the web_search tool with query: "${query}"`,
+        `Use the web_search_mmx tool with query: "${query}"`,
       );
     },
   });
