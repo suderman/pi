@@ -1,9 +1,10 @@
 {
-  "defaultProvider": "codex-lb",
-  "defaultModel": "gpt-5.5",
+  "defaultProvider": "minimax",
+  "defaultModel": "MiniMax-M3",
   "defaultThinkingLevel": "medium",
   "enabledModels": [
-    "codex-lb/*"
+    "codex-lb/*",
+    "minimax/MiniMax-M3"
   ],
   "transport": "sse",
   "lastChangelogVersion": "0.80.2",
