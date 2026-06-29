@@ -1,0 +1,14 @@
+# Credentials — never commit
+agent/auth.json
+
+# Machine-specific trust decisions
+agent/trust.json
+
+# Session history — large, ephemeral, machine-specific
+agent/sessions/
+
+# Auto-downloaded binaries (fd, ripgrep)
+agent/bin/
+
+# npm deps from pi install
+agent/node_modules/
