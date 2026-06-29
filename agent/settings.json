@@ -9,5 +9,11 @@
   "transport": "sse",
   "lastChangelogVersion": "0.80.2",
   "theme": "dark",
-  "hideThinkingBlock": false
+  "hideThinkingBlock": false,
+  "packages": [
+    "git:github.com/mattpocock/skills",
+    "git:github.com/v2nic/pi-caveman",
+    "npm:@dreki-gg/pi-plan-mode",
+    "npm:@juicesharp/rpiv-btw"
+  ]
 }
