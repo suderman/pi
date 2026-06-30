@@ -8,7 +8,7 @@
   ],
   "transport": "sse",
   "lastChangelogVersion": "0.80.2",
-  "theme": "catppuccin-mocha",
+  "theme": "yazi-mocha",
   "hideThinkingBlock": true,
   "packages": [
     "npm:@dreki-gg/pi-plan-mode",
