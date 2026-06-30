@@ -1,0 +1,19 @@
+{
+  "defaultProvider": "minimax",
+  "defaultModel": "MiniMax-M3",
+  "defaultThinkingLevel": "high",
+  "enabledModels": [
+    "codex-lb/gpt-5.5",
+    "minimax/MiniMax-M3"
+  ],
+  "transport": "sse",
+  "lastChangelogVersion": "0.80.2",
+  "theme": "catppuccin-mocha",
+  "hideThinkingBlock": true,
+  "packages": [
+    "npm:@dreki-gg/pi-plan-mode",
+    "npm:@juicesharp/rpiv-btw",
+    "npm:pi-web-access",
+    "npm:pi-mcp-adapter"
+  ]
+}
