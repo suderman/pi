@@ -1,12 +1,19 @@
-agent/.env
-agent/.env.local
-agent/auth.json
-agent/sessions/
-agent/bin/
-agent/git/
-agent/npm/
-agent/node_modules/
-agent/mcp-onboarding.json
-context-mode
-*cache*
-*.tmp.*
+# Whitelist approach: pi mutates agent/ aggressively (npm cache, sessions,
+# MCP caches, etc). Ignore everything, explicitly allow only files we want
+# version-controlled. Prevents accidental `git add .` commits of mutable state.
+
+# ignore everything
+*
+
+# exceptions
+!.gitignore
+!README.md
+!agent/
+!agent/AGENTS.md
+!agent/extensions/
+!agent/extensions/destructive-guard.ts
+!agent/extensions/mmx-search.ts
+!agent/keybindings.json
+!agent/mcp.json
+!agent/models.json
+!agent/settings.json
