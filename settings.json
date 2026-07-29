@@ -3,11 +3,13 @@
   "defaultModel": "MiniMax-M3",
   "defaultThinkingLevel": "high",
   "enabledModels": [
-    "codex-lb/gpt-5.5",
+    "codex-lb/gpt-5.6-sol",
+    "codex-lb/gpt-5.6-terra",
+    "codex-lb/gpt-5.6-luna",
     "minimax/MiniMax-M3"
   ],
   "transport": "sse",
-  "lastChangelogVersion": "0.80.6",
+  "lastChangelogVersion": "0.82.1",
   "theme": "yazi-mocha",
   "hideThinkingBlock": true,
   "packages": [
