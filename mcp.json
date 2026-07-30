@@ -18,6 +18,14 @@
     },
     "gh_grep": {
       "url": "https://mcp.grep.app"
+    },
+    "minimax": {
+      "command": "uvx",
+      "args": ["--with", "mcp<2", "minimax-coding-plan-mcp", "-y"],
+      "headers": {
+        "MINIMAX_API_KEY": "${MINIMAX_API_KEY}",
+        "MINIMAX_API_HOST": "https://api.minimax.io"
+      }
     }
   }
 }
