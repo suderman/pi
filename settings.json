@@ -13,9 +13,10 @@
   "theme": "yazi-mocha",
   "hideThinkingBlock": true,
   "packages": [
-    "npm:@dreki-gg/pi-plan-mode",
     "npm:@juicesharp/rpiv-btw",
     "npm:pi-web-access",
-    "npm:pi-mcp-adapter"
+    "npm:pi-mcp-adapter",
+    "npm:pi-lens",
+    "npm:@pi-vault/pi-dcp"
   ]
 }
