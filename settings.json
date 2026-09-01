@@ -17,6 +17,8 @@
     "npm:pi-web-access",
     "npm:pi-mcp-adapter",
     "npm:pi-lens",
-    "npm:@pi-vault/pi-dcp"
+    "npm:@pi-vault/pi-dcp",
+    "npm:pi-subagents",
+    "git:github.com/DietrichGebert/ponytail"
   ]
 }
