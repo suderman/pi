@@ -1,0 +1,24 @@
+#+title: Pi config
+
+My [[https://github.com/badlogic/pi-mono][Pi]] setup, packed into a Nix flake so it can follow me without becoming a small archaeological dig.
+
+* Run it
+
+#+begin_src sh
+nix run github:suderman/pi
+#+end_src
+
+It uses =~/.pi/agent= when that exists. Otherwise it starts Pi with this repo's config in a temporary writable directory.
+
+* Included bits
+
+- Themes and keybindings that suit me.
+- MCP setup for Chrome DevTools, Context7, grep.app, and MiniMax.
+- Small extensions for Hyprland controls, MMX web search, a calmer footer, and occasional nonsense while Pi thinks.
+- Commit prompts and a few local skills.
+
+API keys stay outside this repo. Set whichever provider variables your setup needs, such as =CODEX_LB_API_KEY= or =MINIMAX_API_KEY=.
+
+* Notes
+
+This is personal config, not a polished distribution. Borrow whatever is useful. If an extension says it is consulting the void, it is probably still working.
