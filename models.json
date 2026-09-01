@@ -17,7 +17,10 @@
             "medium": "medium",
             "high": "high",
             "xhigh": "xhigh"
-          }
+          },
+          "input": ["text", "image"],
+          "contextWindow": 1100000,
+          "maxTokens": 128000
         },
         {
           "id": "gpt-5.6-terra",
@@ -30,7 +33,10 @@
             "medium": "medium",
             "high": "high",
             "xhigh": "xhigh"
-          }
+          },
+          "input": ["text", "image"],
+          "contextWindow": 1100000,
+          "maxTokens": 128000
         },
         {
           "id": "gpt-5.6-luna",
@@ -43,73 +49,10 @@
             "medium": "medium",
             "high": "high",
             "xhigh": "xhigh"
-          }
-        },
-        {
-          "id": "gpt-5.5",
-          "name": "GPT-5.5 (codex-lb)",
-          "reasoning": true,
-          "thinkingLevelMap": {
-            "off": "none",
-            "minimal": "minimal",
-            "low": "low",
-            "medium": "medium",
-            "high": "high",
-            "xhigh": "xhigh"
           },
           "input": ["text", "image"],
-          "contextWindow": 272000,
-          "maxTokens": 128000,
-          "cost": {
-            "input": 5,
-            "output": 30,
-            "cacheRead": 0.5,
-            "cacheWrite": 5
-          }
-        },
-        {
-          "id": "gpt-5.4",
-          "name": "GPT-5.4 (codex-lb)",
-          "reasoning": true,
-          "thinkingLevelMap": {
-            "off": "none",
-            "minimal": "minimal",
-            "low": "low",
-            "medium": "medium",
-            "high": "high",
-            "xhigh": "xhigh"
-          },
-          "input": ["text", "image"],
-          "contextWindow": 272000,
-          "maxTokens": 128000,
-          "cost": {
-            "input": 2.5,
-            "output": 15,
-            "cacheRead": 0.25,
-            "cacheWrite": 2.5
-          }
-        },
-        {
-          "id": "gpt-5.4-mini",
-          "name": "GPT-5.4 Mini (codex-lb)",
-          "reasoning": true,
-          "thinkingLevelMap": {
-            "off": "none",
-            "minimal": "minimal",
-            "low": "low",
-            "medium": "medium",
-            "high": "high",
-            "xhigh": "xhigh"
-          },
-          "input": ["text", "image"],
-          "contextWindow": 272000,
-          "maxTokens": 128000,
-          "cost": {
-            "input": 0.75,
-            "output": 4.5,
-            "cacheRead": 0.075,
-            "cacheWrite": 0.75
-          }
+          "contextWindow": 1100000,
+          "maxTokens": 128000
         }
       ]
     },
