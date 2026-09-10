@@ -9,7 +9,7 @@
     "minimax/MiniMax-M3"
   ],
   "transport": "sse",
-  "lastChangelogVersion": "0.84.4",
+  "lastChangelogVersion": "0.85.1",
   "theme": "yazi-mocha",
   "hideThinkingBlock": true,
   "packages": [
