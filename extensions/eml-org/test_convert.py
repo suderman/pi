@@ -62,7 +62,7 @@ class ConvertTest(unittest.TestCase):
             self.assertNotIn("#+end_quote", text)
 
             identifier = next(line.split(maxsplit=1)[1] for line in text.splitlines() if line.startswith(":ID:"))
-            attachment_dir = output_dir.parent / "data" / identifier[:2] / identifier[2:]
+            attachment_dir = output_dir.parent / ".attach" / identifier[:2] / identifier[2:]
             self.assertEqual(
                 sorted(path.name for path in attachment_dir.iterdir()),
                 ["chart-screenshot.png", "report-q1.pdf"],

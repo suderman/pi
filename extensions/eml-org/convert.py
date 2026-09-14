@@ -264,7 +264,7 @@ def convert(source: Path, output_dir: Path) -> dict[str, object]:
 
     org = "\n".join(metadata) + "\n\n" + "\n\n".join(rendered_sections).strip() + "\n"
 
-    attachment_dir = output_dir.parent / "data" / identifier[:2] / identifier[2:]
+    attachment_dir = output_dir.parent / ".attach" / identifier[:2] / identifier[2:]
     try:
         if attachments:
             attachment_dir.mkdir(parents=True, exist_ok=False)
