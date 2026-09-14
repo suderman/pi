@@ -19,6 +19,28 @@ It uses =~/.pi/agent= when that exists. Otherwise it starts Pi with this repo's 
 
 API keys stay outside this repo. Set whichever provider variables your setup needs, such as =CODEX_LB_API_KEY= or =MINIMAX_API_KEY=.
 
+* Pi Lens paths
+
+The launcher sets these defaults when using =~/.pi/agent=:
+
+| Variable              | Path                                    | NixOS persistence |
+|-----------------------+-----------------------------------------+-------------------|
+| =PI_LENS_CONFIG_PATH= | =~/.config/pi/pi-lens.json=              | storage           |
+| =PI_LENS_HOME=        | =~/.local/state/pi/pi-lens=              | scratch           |
+| =PILENS_DATA_DIR=     | =~/.local/state/pi/pi-lens/projects=     | scratch           |
+
+Config stays in this repo's backed-up directory. Logs, managed tools, worklogs,
+install choices, and diagnostic decisions share Pi's existing scratch-backed
+state directory. No extension-specific persistence mount is needed. Lens mixes
+caches with that state, so those caches also survive reboots but are not backed
+up. Pi's =~/.cache= data can remain disposable.
+
+Explicit environment overrides win. The standalone launcher honors
+=XDG_CONFIG_HOME= and =XDG_STATE_HOME=; the NixOS wrapper uses its Pi config and
+state roots. Setting =PILENS_DATA_DIR= also keeps new runtime writes out of legacy
+workspace =.pi-lens/= directories. Without =~/.pi/agent=, the fallback keeps Lens
+data in the temporary tree instead.
+
 * Notes
 
 This is personal config, not a polished distribution. Borrow whatever is useful. If an extension says it is consulting the void, it is probably still working.

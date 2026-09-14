@@ -45,6 +45,7 @@
               export TMPDIR="$agentConfig/tmp"
               export NPM_CONFIG_CACHE="$agentConfig/npm-cache"
               export PI_LENS_HOME="$agentConfig/pi-lens"
+              export PI_LENS_CONFIG_PATH="''${PI_LENS_CONFIG_PATH:-$agentConfig/pi-lens.json}"
             fi
 
             export PI_CODING_AGENT_DIR="$agentConfig"
@@ -55,6 +56,10 @@
               . "$agentConfig/.env"
               set +a
             fi
+
+            export PI_LENS_CONFIG_PATH="''${PI_LENS_CONFIG_PATH:-''${XDG_CONFIG_HOME:-$HOME/.config}/pi/pi-lens.json}"
+            export PI_LENS_HOME="''${PI_LENS_HOME:-''${XDG_STATE_HOME:-$HOME/.local/state}/pi/pi-lens}"
+            export PILENS_DATA_DIR="''${PILENS_DATA_DIR:-$PI_LENS_HOME/projects}"
 
             ${pi}/bin/pi "$@"
           '';
