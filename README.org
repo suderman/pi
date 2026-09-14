@@ -41,6 +41,22 @@ state roots. Setting =PILENS_DATA_DIR= also keeps new runtime writes out of lega
 workspace =.pi-lens/= directories. Without =~/.pi/agent=, the fallback keeps Lens
 data in the temporary tree instead.
 
+* Pi FFF paths
+
+FFF's two LMDB databases default to these paths:
+
+| Variable           | Path                                  | NixOS persistence |
+|--------------------+---------------------------------------+-------------------|
+| =FFF_FRECENCY_DB=  | =~/.local/state/pi/fff/frecency=       | scratch           |
+| =FFF_HISTORY_DB=   | =~/.local/state/pi/fff/history=         | scratch           |
+
+Frecency and query history are useful between sessions but are not
+configuration, so they use Pi's existing scratch-backed state directory. FFF
+does not write a disk index. Its file index lives in memory and can be rebuilt.
+
+Explicit environment overrides still win. Without =~/.pi/agent=, the standalone
+launcher puts both databases in its temporary agent tree.
+
 * Notes
 
 This is personal config, not a polished distribution. Borrow whatever is useful. If an extension says it is consulting the void, it is probably still working.

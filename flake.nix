@@ -46,6 +46,8 @@
               export NPM_CONFIG_CACHE="$agentConfig/npm-cache"
               export PI_LENS_HOME="$agentConfig/pi-lens"
               export PI_LENS_CONFIG_PATH="''${PI_LENS_CONFIG_PATH:-$agentConfig/pi-lens.json}"
+              export FFF_FRECENCY_DB="''${FFF_FRECENCY_DB:-$agentConfig/fff/frecency}"
+              export FFF_HISTORY_DB="''${FFF_HISTORY_DB:-$agentConfig/fff/history}"
             fi
 
             export PI_CODING_AGENT_DIR="$agentConfig"
@@ -60,6 +62,8 @@
             export PI_LENS_CONFIG_PATH="''${PI_LENS_CONFIG_PATH:-''${XDG_CONFIG_HOME:-$HOME/.config}/pi/pi-lens.json}"
             export PI_LENS_HOME="''${PI_LENS_HOME:-''${XDG_STATE_HOME:-$HOME/.local/state}/pi/pi-lens}"
             export PILENS_DATA_DIR="''${PILENS_DATA_DIR:-$PI_LENS_HOME/projects}"
+            export FFF_FRECENCY_DB="''${FFF_FRECENCY_DB:-''${XDG_STATE_HOME:-$HOME/.local/state}/pi/fff/frecency}"
+            export FFF_HISTORY_DB="''${FFF_HISTORY_DB:-''${XDG_STATE_HOME:-$HOME/.local/state}/pi/fff/history}"
 
             ${pi}/bin/pi "$@"
           '';
