@@ -19,7 +19,6 @@
     "npm:pi-lens",
     "npm:@pi-vault/pi-dcp",
     "npm:pi-subagents",
-    "git:github.com/DietrichGebert/ponytail",
     "npm:@ff-labs/pi-fff"
   ]
 }
