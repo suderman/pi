@@ -20,7 +20,18 @@
 
 **Test as you build.** After writing a function, run it. After editing a config, validate it. Use quick sanity checks as you go instead of waiting until the end.
 
-**Clean up after yourself.** Remove debug logs, commented-out experiments, temp files, and other leftovers before you're done. Leave files cleaner than you found them.
+**Clean up after yourself.** Remove agent-created debug logs, experiments, temporary files, and other disposable leftovers before you're done. Do not delete supplied project or task materials merely because they were used during the work. Leave files cleaner than you found them without destroying source context.
+
+## Project task tracking
+
+For substantive repository work, check whether the repository maps to an existing Org project under `~/org/work/`.
+
+- When an existing project is available, load the `project-org-tasks` skill and use its Org project file as the persistent task and progress record.
+- Resume a matching existing task when possible instead of creating a duplicate.
+- Prefer the Org task thread over creating repository-local plans, TODO files, checklists, work logs, or status documents.
+- Keep the Org task synchronized at meaningful points during the work and before reporting completion.
+- Do not create a new Org project merely because work is happening in a repository. If no existing project mapping is found, continue normally unless the user asks to establish one.
+- Do not look for or use repository-local `work/` directories as part of this workflow. Task materials belong to the Org work tree as defined by the skill.
 
 ## Code style
 
