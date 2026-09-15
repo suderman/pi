@@ -6,6 +6,8 @@ This Pi extension watches the canonical live transcript from Nojoin and keeps a 
 
 Nojoin usually stays silent. When a client asks a question, it first tries to give the participant a direct =SAY= answer grounded in the loaded meeting brief, transcript, and stable domain knowledge. It uses =ASK= only when missing information blocks a safe answer. =WATCH= flags a private concern. Automatic checks use one isolated Pi model request at a time. New transcript states replace queued old states.
 
+While Nojoin is running and a live recording exists, normal questions typed into Pi also receive the loaded brief, compact meeting context, and recent transcript through a temporary system-prompt addition. This context is not added to the visible chat or saved as a separate message. Pi answers these direct questions briefly so the response is easy to scan or say aloud during the meeting.
+
 * Installation
 
 The extension lives at:
@@ -91,7 +93,7 @@ Model values use =provider/model-id=. If a configured model is unavailable, the 
 /nojoin debug off
 #+end_src
 
-=start= authenticates, discovers a live recording, and starts polling. =stop= aborts network and model work, clears timers and meeting state, and removes the widget. =recording= selects one recording for debugging; =auto= returns to automatic selection. =clear= clears the advice log without stopping the listener.
+=start= authenticates, discovers a live recording, starts polling, and prepares normal Pi chat turns to use current meeting context. =stop= aborts network and model work, clears timers and meeting state, removes the widget, and stops adding meeting context to chat turns. =recording= selects one recording for debugging; =auto= returns to automatic selection. =clear= clears the advice log without stopping the listener.
 
 =focus TEXT= sets a meeting-specific instruction. Calling =focus= without text shows it. =focus-clear= removes it.
 

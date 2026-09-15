@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { NojoinClient, NojoinError, parseTranscriptDelta } from "../nojoin.ts";
-import { ADVISER_SYSTEM_PROMPT, buildAdvicePrompt } from "../prompt.ts";
+import { ADVISER_SYSTEM_PROMPT, buildAdvicePrompt, buildDirectChatContext } from "../prompt.ts";
 import {
 	adviceExpired,
 	applyTranscriptDelta,
@@ -210,4 +210,18 @@ test("includes meeting focus, brief, and source-aware transcript in adviser cont
 	assert.match(ADVISER_SYSTEM_PROMPT, /Do not turn an answerable client question into another question/);
 	assert.match(prompt, /LIKELY OTHERS \[system channel\]/);
 	assert.match(prompt, /NEW/);
+});
+
+test("builds private context for direct chat questions", () => {
+	const context = buildDirectChatContext({
+		recordingName: "Client review",
+		focus: "Make recommendations concrete",
+		brief: "Retention is currently two months.",
+		rollingContext: "The client asked what to fix first.",
+		recent: [utterance("u1", "What would you prioritize?")],
+	});
+	assert.match(context, /Give the answer first/);
+	assert.match(context, /Retention is currently two months/);
+	assert.match(context, /LIKELY OTHERS \[system channel\]/);
+	assert.match(context, /What would you prioritize\?/);
 });

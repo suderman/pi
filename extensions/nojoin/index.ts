@@ -8,6 +8,7 @@ import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-a
 
 import { requestAdvice, requestRollingContext, resolveAdviserModel, type ResolvedModel } from "./adviser.ts";
 import { NojoinClient, NojoinError } from "./nojoin.ts";
+import { buildDirectChatContext } from "./prompt.ts";
 import {
 	adviceExpired,
 	applyTranscriptDelta,
@@ -680,6 +681,21 @@ export default function nojoinExtension(pi: ExtensionAPI): void {
 	pi.registerShortcut("ctrl+alt+h", {
 		description: "Nojoin: help me now",
 		handler: helpNow,
+	});
+
+	pi.on("before_agent_start", async (event) => {
+		if (!enabled) return;
+		await pollNow();
+		if (!activeRecording || !transcript) return;
+		return {
+			systemPrompt: `${event.systemPrompt}\n\n${buildDirectChatContext({
+				recordingName: activeRecording.name,
+				focus,
+				brief,
+				rollingContext,
+				recent: recentUtterances(transcript, config.recentContextSeconds, 18_000),
+			})}`,
+		};
 	});
 
 	pi.on("session_start", async (_event, ctx) => {
