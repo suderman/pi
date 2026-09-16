@@ -24,12 +24,13 @@
 
 ## Project task tracking
 
-For substantive repository work, check whether the repository maps to an existing Org project under `~/org/work/`.
+Before substantive work, check whether the request belongs to an existing Org project under `~/org/work/`. Do this before research, installation, edits, or other changes. The check applies to repository work and to related package, configuration, automation, or service changes, even when affected files live outside the repository.
 
 - When an existing project is available, load the `project-org-tasks` skill and use its Org project file as the persistent task and progress record.
-- Resume a matching existing task when possible instead of creating a duplicate.
+- Read the project file at the start. Resume a matching task when possible; otherwise create a focused task and mark it `PROG` before making changes.
 - Prefer the Org task thread over creating repository-local plans, TODO files, checklists, work logs, or status documents.
-- Keep the Org task synchronized at meaningful points during the work and before reporting completion.
+- Keep the Org task synchronized at meaningful points. Re-read it, record verification, and set the correct state before reporting completion.
+- Skip this workflow only for quick informational answers, read-only lookups, isolated commands, and trivial edits. Lack of a source-code edit does not make work trivial.
 - Do not create a new Org project merely because work is happening in a repository. If no existing project mapping is found, continue normally unless the user asks to establish one.
 - Do not look for or use repository-local `work/` directories as part of this workflow. Task materials belong to the Org work tree as defined by the skill.
 
