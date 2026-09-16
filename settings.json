@@ -3,10 +3,8 @@
   "defaultModel": "gpt-5.6-terra",
   "defaultThinkingLevel": "medium",
   "enabledModels": [
-    "codex-lb/gpt-5.6-sol",
-    "codex-lb/gpt-5.6-terra",
-    "codex-lb/gpt-5.6-luna",
-    "minimax/MiniMax-M3"
+    "codex-lb/gpt-5.6-sol:high",
+    "codex-lb/gpt-5.6-terra:medium"
   ],
   "transport": "sse",
   "lastChangelogVersion": "0.85.1",
