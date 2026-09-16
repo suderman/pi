@@ -19,6 +19,7 @@
     "npm:pi-lens",
     "npm:@pi-vault/pi-dcp",
     "npm:pi-subagents",
-    "npm:@ff-labs/pi-fff"
+    "npm:@ff-labs/pi-fff",
+    "npm:@pi-unipi/notify"
   ]
 }
