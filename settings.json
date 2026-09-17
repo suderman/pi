@@ -9,6 +9,7 @@
   "transport": "sse",
   "lastChangelogVersion": "0.85.1",
   "theme": "yazi-mocha",
+  "tuiMode": "fullscreen",
   "hideThinkingBlock": true,
   "subagents": {
     "agentOverrides": {

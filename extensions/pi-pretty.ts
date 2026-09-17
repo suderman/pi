@@ -1,8 +1,8 @@
 /**
- * Lightweight Pi visual polish.
+ * Compact, responsive Pi statusline with fullscreen mouse actions.
  *
- * No package dependencies: replaces the default footer with a fixed
- * Nerd-Font status bar and adds a small colored working indicator.
+ * Keeps the visual treatment local and dependency-free while borrowing the
+ * colored Powerline rhythm and priority-based fitting of pi-statusline.
  */
 
 import type {
@@ -11,31 +11,65 @@ import type {
 	Theme,
 	ThemeColor,
 } from "@earendil-works/pi-coding-agent";
-import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
+import {
+	Key,
+	Text,
+	matchesKey,
+	truncateToWidth,
+	type TuiMouseEvent,
+	type TuiMouseEventResult,
+	visibleWidth,
+} from "@earendil-works/pi-tui";
 import { homedir } from "node:os";
-import { relative } from "node:path";
+import { basename } from "node:path";
 
-type ThinkingLevel = "off" | "minimal" | "low" | "medium" | "high" | "xhigh";
+type ThinkingLevel =
+	| "off"
+	| "minimal"
+	| "low"
+	| "medium"
+	| "high"
+	| "xhigh"
+	| "max";
+
+type SegmentId = "model" | "thinking" | "cwd" | "branch" | "status" | "context";
 
 type Segment = {
+	id: SegmentId;
 	icon: string;
 	text: string;
-	iconColor: ThemeColor;
-	textColor?: ThemeColor;
-	rawText?: boolean;
+	background: ThemeColor;
+	foreground: ThemeColor;
+	priority: number;
+	clickable?: boolean;
+};
+
+type ClickRange = {
+	id: SegmentId;
+	start: number;
+	end: number;
 };
 
 const HOME = homedir();
-const SEPARATOR = " │ ";
-
-const THINKING_COLORS: Record<ThinkingLevel, ThemeColor> = {
+const POWERLINE_END = "";
+const THINKING_LEVELS: ThinkingLevel[] = [
+	"off",
+	"minimal",
+	"low",
+	"medium",
+	"high",
+	"xhigh",
+	"max",
+];
+const THINKING_COLORS = {
 	off: "thinkingOff",
 	minimal: "thinkingMinimal",
 	low: "thinkingLow",
 	medium: "thinkingMedium",
 	high: "thinkingHigh",
 	xhigh: "thinkingXhigh",
-};
+	max: "thinkingMax",
+} satisfies Record<ThinkingLevel, ThemeColor>;
 
 function formatCount(count: number): string {
 	if (count < 1000) return count.toString();
@@ -45,169 +79,366 @@ function formatCount(count: number): string {
 	return `${Math.round(count / 1_000_000)}M`;
 }
 
-function displayCwd(cwd: string): string {
+function projectName(cwd: string): string {
 	if (cwd === HOME) return "~";
-	if (cwd.startsWith(`${HOME}/`)) return `~/${relative(HOME, cwd)}`;
-	return cwd;
-}
-
-function contextSegment(ctx: ExtensionContext): Segment | undefined {
-	const usage = ctx.getContextUsage();
-	if (!usage || !usage.contextWindow) return undefined;
-
-	// Pi-DCP's /dcp:context reads this same post-pruning source of truth.
-	const tokens = usage.tokens;
-	const percent = usage.percent;
-	const color: ThemeColor =
-		percent !== null && percent >= 80
-			? "error"
-			: percent !== null && percent >= 60
-				? "warning"
-				: "borderAccent";
-	return {
-		icon: "🧠",
-		text:
-			tokens === null || percent === null
-				? `?/${formatCount(usage.contextWindow)} ?%`
-				: `${formatCount(tokens)}/${formatCount(usage.contextWindow)} ${Math.round(percent)}%`,
-		iconColor: color,
-		textColor: color,
-	};
-}
-
-function extensionStatusSegment(
-	theme: Theme,
-	statuses: ReadonlyMap<string, string>,
-): Segment | undefined {
-	const values = Array.from(statuses.values()).filter(
-		(value) => value.trim().length > 0,
-	);
-	if (values.length === 0) return undefined;
-	return {
-		icon: "󰄬",
-		text: values.join(theme.fg("dim", " · ")),
-		iconColor: "mdListBullet",
-		rawText: true,
-	};
-}
-
-function renderSegment(theme: Theme, segment: Segment): string {
-	const icon = theme.fg(segment.iconColor, segment.icon);
-	const text = segment.rawText
-		? segment.text
-		: theme.fg(segment.textColor ?? "muted", segment.text);
-	return `${icon} ${text}`;
-}
-
-function joinSegments(theme: Theme, segments: Segment[]): string {
-	return segments
-		.map((segment) => renderSegment(theme, segment))
-		.join(theme.fg("borderMuted", SEPARATOR));
-}
-
-function fitFooter(left: string, right: string, width: number): string {
-	if (width <= 0) return "";
-
-	let leftText = left;
-	let rightText = right;
-	let leftWidth = visibleWidth(leftText);
-	let rightWidth = visibleWidth(rightText);
-	const minPad = 1;
-
-	if (leftWidth + rightWidth + minPad > width) {
-		const rightBudget = Math.max(
-			0,
-			Math.min(rightWidth, Math.floor(width * 0.42)),
-		);
-		rightText = truncateToWidth(rightText, rightBudget, "…");
-		rightWidth = visibleWidth(rightText);
-	}
-
-	if (leftWidth + rightWidth + minPad > width) {
-		const leftBudget = Math.max(0, width - rightWidth - minPad);
-		leftText = truncateToWidth(leftText, leftBudget, "…");
-		leftWidth = visibleWidth(leftText);
-	}
-
-	if (leftWidth + rightWidth + minPad > width) {
-		return truncateToWidth(`${leftText} ${rightText}`, width, "…");
-	}
-
-	const padding = " ".repeat(Math.max(minPad, width - leftWidth - rightWidth));
-	return truncateToWidth(`${leftText}${padding}${rightText}`, width, "");
+	return basename(cwd) || cwd;
 }
 
 function thinkingLevel(pi: ExtensionAPI): ThinkingLevel {
 	const level = pi.getThinkingLevel();
-	return level === "off" ||
-		level === "minimal" ||
-		level === "low" ||
-		level === "medium" ||
-		level === "high"
-		? level
-		: "xhigh";
+	return THINKING_LEVELS.includes(level as ThinkingLevel)
+		? (level as ThinkingLevel)
+		: "off";
+}
+
+function modelName(ctx: ExtensionContext): string {
+	const model = ctx.model;
+	if (!model) return "no model";
+	const name = model.name || model.id;
+	const providerSuffix = ` (${model.provider})`;
+	return name.endsWith(providerSuffix) ? name.slice(0, -providerSuffix.length) : name;
+}
+
+function contextSegment(ctx: ExtensionContext): Segment | undefined {
+	const usage = ctx.getContextUsage();
+	if (!usage?.contextWindow) return undefined;
+
+	const percent = usage.percent;
+	let color: ThemeColor = "borderAccent";
+	if (percent !== null && percent >= 90) color = "error";
+	else if (percent !== null && percent >= 70) color = "warning";
+	const value =
+		percent === null
+			? `ctx ?/${formatCount(usage.contextWindow)}`
+			: `ctx ${percent.toFixed(1)}%/${formatCount(usage.contextWindow)}`;
+
+	return {
+		id: "context",
+		icon: "🪟",
+		text: value,
+		background: "selectedBg",
+		foreground: color,
+		priority: 95,
+		clickable: true,
+	};
+}
+
+function extensionStatusSegment(statuses: ReadonlyMap<string, string>): Segment | undefined {
+	const values = Array.from(statuses.values()).flatMap((value) => {
+		const trimmed = value.trim();
+		return trimmed ? [trimmed] : [];
+	});
+	if (values.length === 0) return undefined;
+	return {
+		id: "status",
+		icon: "⚡",
+		text: values.join(" · "),
+		background: "toolPendingBg",
+		foreground: "muted",
+		priority: 55,
+	};
+}
+
+function renderBrand(theme: Theme): string {
+	return (
+		theme.fg("dim", "░") +
+		theme.fg("muted", "▒") +
+		theme.fg("accent", "▓")
+	);
+}
+
+function capColor(theme: Theme, background: Segment["background"]): string {
+	// Pi keeps background tokens out of fg(); the SGR color has the same value
+	// with 38 (foreground) in place of 48 (background).
+	return theme.getBgAnsi(background).replace("\x1b[48;", "\x1b[38;");
+}
+
+function renderSegments(
+	theme: Theme,
+	segments: Segment[],
+	hovered: SegmentId | undefined,
+	showBrand: boolean,
+): { text: string; ranges: ClickRange[] } {
+	let text = showBrand ? renderBrand(theme) : "";
+	let column = visibleWidth(text);
+	const ranges: ClickRange[] = [];
+
+	segments.forEach((segment, index) => {
+		const label = ` ${segment.icon} ${segment.text} `;
+		const styledLabel = hovered === segment.id ? theme.bold(label) : label;
+		const body = theme.bg(
+			segment.background,
+			theme.fg(segment.foreground, styledLabel),
+		);
+		const start = column;
+		text += body;
+		column += visibleWidth(body);
+		const clickRange = segment.clickable
+			? { id: segment.id, start, end: column }
+			: undefined;
+		if (clickRange) ranges.push(clickRange);
+
+		const next = segments[index + 1];
+		if (!next || next.background !== segment.background) {
+			const cap = `${capColor(theme, segment.background)}${POWERLINE_END}\x1b[39m`;
+			const separator = next ? theme.bg(next.background, cap) : cap;
+			text += separator;
+			column += visibleWidth(separator);
+			if (clickRange) clickRange.end = column;
+		}
+	});
+
+	return { text, ranges };
+}
+
+function fitSegments(
+	theme: Theme,
+	allSegments: Segment[],
+	hovered: SegmentId | undefined,
+	width: number,
+): { text: string; ranges: ClickRange[] } {
+	let segments = [...allSegments];
+	let showBrand = true;
+	let rendered = renderSegments(theme, segments, hovered, showBrand);
+
+	if (visibleWidth(rendered.text) > width) {
+		showBrand = false;
+		rendered = renderSegments(theme, segments, hovered, showBrand);
+	}
+
+	while (visibleWidth(rendered.text) > width && segments.length > 1) {
+		const lowest = Math.min(...segments.map((segment) => segment.priority));
+		const dropIndex = segments.findLastIndex((segment) => segment.priority === lowest);
+		segments.splice(dropIndex, 1);
+		rendered = renderSegments(theme, segments, hovered, showBrand);
+	}
+
+	if (visibleWidth(rendered.text) <= width) return rendered;
+
+	const text = truncateToWidth(rendered.text, width, "");
+	const renderedWidth = visibleWidth(text);
+	return {
+		text,
+		ranges: rendered.ranges.flatMap((range) =>
+			range.start < renderedWidth
+				? [{ ...range, end: Math.min(range.end, renderedWidth) }]
+				: [],
+		),
+	};
+}
+
+async function chooseModel(pi: ExtensionAPI, ctx: ExtensionContext): Promise<void> {
+	if (!ctx.isIdle()) {
+		ctx.ui.notify("Wait for current response before changing model", "info");
+		return;
+	}
+
+	const candidates =
+		ctx.scopedModels.length > 0
+			? ctx.scopedModels.map(({ model, thinkingLevel }) => ({ model, thinkingLevel }))
+			: ctx.modelRegistry.getAvailable().map((model) => ({ model, thinkingLevel: undefined }));
+	const choices = candidates.map(({ model }) => {
+		const active = model.provider === ctx.model?.provider && model.id === ctx.model?.id;
+		return `${active ? "●" : "○"} ${model.name || model.id} · ${model.provider}/${model.id}`;
+	});
+	const selected = await ctx.ui.select("Choose model", choices);
+	if (!selected) return;
+
+	const candidate = candidates[choices.indexOf(selected)];
+	if (!candidate) return;
+	if (!(await pi.setModel(candidate.model))) {
+		ctx.ui.notify(`No credentials for ${candidate.model.provider}`, "error");
+		return;
+	}
+	if (candidate.thinkingLevel) {
+		pi.setThinkingLevel(candidate.thinkingLevel as ThinkingLevel);
+	}
+}
+
+async function chooseThinking(pi: ExtensionAPI, ctx: ExtensionContext): Promise<void> {
+	if (!ctx.isIdle()) {
+		ctx.ui.notify("Wait for current response before changing thinking effort", "info");
+		return;
+	}
+
+	const current = thinkingLevel(pi);
+	const choices = THINKING_LEVELS.map(
+		(level) => `${level === current ? "●" : "○"} ${level}`,
+	);
+	const selected = await ctx.ui.select("Thinking effort", choices);
+	if (!selected) return;
+	const selectedLevel = THINKING_LEVELS[choices.indexOf(selected)];
+	if (selectedLevel) pi.setThinkingLevel(selectedLevel);
+}
+
+async function showDetails(
+	pi: ExtensionAPI,
+	ctx: ExtensionContext,
+	branch: string | null,
+): Promise<void> {
+	const usage = ctx.getContextUsage();
+	const sessionName = pi.getSessionName();
+	let context = "unknown";
+	if (usage?.contextWindow) {
+		const tokens = usage.tokens === null ? "?" : formatCount(usage.tokens);
+		const percent = usage.percent === null ? "" : ` (${usage.percent.toFixed(1)}%)`;
+		context = `${tokens} / ${formatCount(usage.contextWindow)}${percent}`;
+	}
+	const rows = [
+		["Model", ctx.model?.id || "none"],
+		["Provider", ctx.model?.provider || "none"],
+		["Thinking", thinkingLevel(pi)],
+		["Context", context],
+		["Directory", ctx.cwd],
+		["Branch", branch || "none"],
+		["Session", sessionName || "unnamed"],
+	];
+
+	await ctx.ui.custom<void>(
+		(_tui, theme, _keybindings, done) => {
+			const labelWidth = Math.max(...rows.map(([label]) => label.length));
+			const content = [
+				theme.fg("accent", theme.bold("Pi session")),
+				"",
+				...rows.map(
+					([label, value]) =>
+						`${theme.fg("muted", label.padEnd(labelWidth))}  ${theme.fg("text", value)}`,
+				),
+				"",
+				theme.fg("dim", "Enter, Esc, or click to close"),
+			].join("\n");
+			const text = new Text(content, 1, 1, (line) =>
+				theme.bg("customMessageBg", line),
+			);
+			return {
+				render: (width) => text.render(width),
+				invalidate: () => text.invalidate(),
+				handleInput: (data: string) => {
+					if (matchesKey(data, Key.escape) || matchesKey(data, Key.enter)) done();
+				},
+				handleMouse: (event: TuiMouseEvent): TuiMouseEventResult | undefined => {
+					if (event.type !== "click" || event.button !== "left") return undefined;
+					done();
+					return { handled: true };
+				},
+			};
+		},
+		{
+			overlay: true,
+			overlayOptions: {
+				anchor: "center",
+				width: "65%",
+				minWidth: 44,
+				maxHeight: "80%",
+			},
+		},
+	);
 }
 
 let requestFooterRender: (() => void) | undefined;
 
-function installFooter(pi: ExtensionAPI, ctx: ExtensionContext): void {
+function installFooter(
+	pi: ExtensionAPI,
+	ctx: ExtensionContext,
+	openMenu: (task: () => Promise<void>) => void,
+): void {
 	if (!ctx.hasUI) return;
 
 	ctx.ui.setFooter((tui, theme, footerData) => {
 		const requestRender = () => tui.requestRender();
 		requestFooterRender = requestRender;
 		const unsubscribe = footerData.onBranchChange(requestRender);
+		let ranges: ClickRange[] = [];
+		let hovered: SegmentId | undefined;
+
+		const actionFor = (id: SegmentId): (() => Promise<void>) | undefined => {
+			if (id === "model") return () => chooseModel(pi, ctx);
+			if (id === "thinking") return () => chooseThinking(pi, ctx);
+			if (id === "context")
+				return () => showDetails(pi, ctx, footerData.getGitBranch());
+			return undefined;
+		};
 
 		return {
 			dispose(): void {
 				unsubscribe();
 				if (requestFooterRender === requestRender) requestFooterRender = undefined;
 			},
-			invalidate(): void {},
+			invalidate(): void {
+				hovered = undefined;
+			},
 			render(width: number): string[] {
-				const left: Segment[] = [
+				const level = thinkingLevel(pi);
+				const segments: Segment[] = [
 					{
-						icon: "",
-						text: displayCwd(ctx.cwd),
-						iconColor: "accent",
-						textColor: "text",
+						id: "model",
+						icon: "🤖",
+						text: modelName(ctx),
+						background: "selectedBg",
+						foreground: "accent",
+						priority: 100,
+						clickable: true,
+					},
+					{
+						id: "thinking",
+						icon: "🧠",
+						text: level,
+						background: "selectedBg",
+						foreground: THINKING_COLORS[level],
+						priority: 90,
+						clickable: true,
+					},
+					{
+						id: "cwd",
+						icon: "📁",
+						text: projectName(ctx.cwd),
+						background: "customMessageBg",
+						foreground: "text",
+						priority: 70,
 					},
 				];
 
 				const branch = footerData.getGitBranch();
-				if (branch)
-					left.push({ icon: "", text: branch, iconColor: "mdListBullet" });
-
-				const sessionName = pi.getSessionName();
-				if (sessionName)
-					left.push({ icon: "󰆼", text: sessionName, iconColor: "mdHeading" });
-
-				const context = contextSegment(ctx);
-				if (context) left.push(context);
-
-				const status = extensionStatusSegment(
-					theme,
-					footerData.getExtensionStatuses(),
-				);
-				if (status) left.push(status);
-
-				const level = thinkingLevel(pi);
-				const model = ctx.model;
-				const right: Segment[] = [];
-				if (model?.provider)
-					right.push({ icon: "󱚣", text: model.provider, iconColor: "warning" });
-				if (model?.id)
-					right.push({
-						icon: "󰚩",
-						text: model.id,
-						iconColor: "accent",
-						textColor: "text",
+				if (branch) {
+					segments.push({
+						id: "branch",
+						icon: "🌿",
+						text: branch,
+						background: "toolSuccessBg",
+						foreground: "success",
+						priority: 80,
 					});
-				right.push({ icon: "󰓅", text: level, iconColor: THINKING_COLORS[level] });
+				}
 
-				return [
-					fitFooter(joinSegments(theme, left), joinSegments(theme, right), width),
-				];
+				const status = extensionStatusSegment(footerData.getExtensionStatuses());
+				if (status) segments.push(status);
+				const context = contextSegment(ctx);
+				if (context) segments.push(context);
+
+				const fitted = fitSegments(theme, segments, hovered, width);
+				ranges = fitted.ranges;
+				return [fitted.text];
+			},
+			handleMouse(event: TuiMouseEvent): TuiMouseEventResult | undefined {
+				if (event.y !== 0) return undefined;
+				const hit = ranges.find(
+					(range) => event.x >= range.start && event.x < range.end,
+				);
+
+				if (event.type === "move") {
+					const next = hit?.id;
+					if (next === hovered) return next ? { handled: true } : undefined;
+					hovered = next;
+					return { handled: Boolean(next), render: true };
+				}
+
+				if (event.type !== "click" || event.button !== "left" || !hit) {
+					return undefined;
+				}
+				const action = actionFor(hit.id);
+				if (!action) return undefined;
+				openMenu(action);
+				return { handled: true };
 			},
 		};
 	});
@@ -230,17 +461,47 @@ function installWorkingIndicator(ctx: ExtensionContext): void {
 }
 
 export default function piPretty(pi: ExtensionAPI): void {
+	let menuOpen = false;
+	const openMenu = (task: () => Promise<void>): void => {
+		if (menuOpen) return;
+		menuOpen = true;
+		void task().finally(() => {
+			menuOpen = false;
+			requestFooterRender?.();
+		});
+	};
+
+	pi.registerCommand("pretty", {
+		description: "Open statusline controls",
+		handler: async (_args, ctx) => {
+			if (menuOpen) return;
+			const choice = await ctx.ui.select("Pi statusline", [
+				"Choose model",
+				"Choose thinking effort",
+				"Show session details",
+			]);
+			if (choice === "Choose model") openMenu(() => chooseModel(pi, ctx));
+			if (choice === "Choose thinking effort")
+				openMenu(() => chooseThinking(pi, ctx));
+			if (choice === "Show session details")
+				openMenu(() => showDetails(pi, ctx, null));
+		},
+	});
+
 	pi.on("session_start", async (_event, ctx) => {
 		installWorkingIndicator(ctx);
-		installFooter(pi, ctx);
+		installFooter(pi, ctx, openMenu);
 	});
 
 	pi.on("context", async () => requestFooterRender?.());
 	pi.on("turn_end", async () => requestFooterRender?.());
 	pi.on("session_compact", async () => requestFooterRender?.());
+	pi.on("model_select", async () => requestFooterRender?.());
+	pi.on("thinking_level_select", async () => requestFooterRender?.());
 
 	pi.on("session_shutdown", async (_event, ctx) => {
 		requestFooterRender = undefined;
+		menuOpen = false;
 		if (!ctx.hasUI) return;
 		ctx.ui.setFooter(undefined);
 		ctx.ui.setWorkingIndicator();
