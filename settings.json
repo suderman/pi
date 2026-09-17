@@ -8,7 +8,7 @@
   ],
   "transport": "sse",
   "lastChangelogVersion": "0.85.1",
-  "theme": "yazi-mocha",
+  "theme": "catppuccin-macchiato",
   "tuiMode": "fullscreen",
   "hideThinkingBlock": true,
   "subagents": {
