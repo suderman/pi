@@ -32,7 +32,7 @@ type ThinkingLevel =
 	| "xhigh"
 	| "max";
 
-type SegmentId = "model" | "thinking" | "cwd" | "branch" | "status" | "context";
+type SegmentId = "model" | "cwd" | "branch" | "status" | "context";
 
 type Segment = {
 	id: SegmentId;
@@ -91,12 +91,8 @@ function thinkingLevel(pi: ExtensionAPI): ThinkingLevel {
 		: "off";
 }
 
-function modelName(ctx: ExtensionContext): string {
-	const model = ctx.model;
-	if (!model) return "no model";
-	const name = model.name || model.id;
-	const providerSuffix = ` (${model.provider})`;
-	return name.endsWith(providerSuffix) ? name.slice(0, -providerSuffix.length) : name;
+function modelSlug(ctx: ExtensionContext): string {
+	return ctx.model?.id || "no-model";
 }
 
 function contextSegment(ctx: ExtensionContext): Segment | undefined {
@@ -114,7 +110,7 @@ function contextSegment(ctx: ExtensionContext): Segment | undefined {
 
 	return {
 		id: "context",
-		icon: "🪟",
+		icon: "󰍛",
 		text: value,
 		background: "selectedBg",
 		foreground: color,
@@ -123,15 +119,39 @@ function contextSegment(ctx: ExtensionContext): Segment | undefined {
 	};
 }
 
+function compactStatus(value: string): string | undefined {
+	const text = value
+		.replace(/\x1b\[[0-9;]*m/g, "")
+		.replace(
+			/(?:\p{Regional_Indicator}+|[#*0-9]\uFE0F?\u20E3|\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})?(?:\u200D\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})?)*|\p{Emoji_Modifier})/gu,
+			"",
+		)
+		.trim();
+	if (!text || text.startsWith("DCP:")) return undefined;
+
+	const mcp = text.match(/^MCP:\s*(\d+) servers? enabled\b/i);
+	if (mcp) {
+		const enabled = Number(mcp[1]);
+		const disabled = Number(text.match(/\((\d+) disabled\)/i)?.[1] || 0);
+		return `MCP: ${enabled}/${enabled + disabled}`;
+	}
+
+	return text
+		.replace(/^MCP\s+(\d+\/\d+)$/i, "MCP: $1")
+		.replace(/LSP Active:\s*/g, "LSP: ")
+		.replace(/LSP Failed:\s*/g, "LSP failed: ")
+		.replace(/LSP Inactive/g, "LSP: inactive");
+}
+
 function extensionStatusSegment(statuses: ReadonlyMap<string, string>): Segment | undefined {
 	const values = Array.from(statuses.values()).flatMap((value) => {
-		const trimmed = value.trim();
-		return trimmed ? [trimmed] : [];
+		const compact = compactStatus(value);
+		return compact ? [compact] : [];
 	});
 	if (values.length === 0) return undefined;
 	return {
 		id: "status",
-		icon: "⚡",
+		icon: "",
 		text: values.join(" · "),
 		background: "toolPendingBg",
 		foreground: "muted",
@@ -353,7 +373,6 @@ function installFooter(
 
 		const actionFor = (id: SegmentId): (() => Promise<void>) | undefined => {
 			if (id === "model") return () => chooseModel(pi, ctx);
-			if (id === "thinking") return () => chooseThinking(pi, ctx);
 			if (id === "context")
 				return () => showDetails(pi, ctx, footerData.getGitBranch());
 			return undefined;
@@ -372,25 +391,16 @@ function installFooter(
 				const segments: Segment[] = [
 					{
 						id: "model",
-						icon: "🤖",
-						text: modelName(ctx),
+						icon: "",
+						text: `${modelSlug(ctx)}:${level}`,
 						background: "selectedBg",
-						foreground: "accent",
+						foreground: THINKING_COLORS[level],
 						priority: 100,
 						clickable: true,
 					},
 					{
-						id: "thinking",
-						icon: "🧠",
-						text: level,
-						background: "selectedBg",
-						foreground: THINKING_COLORS[level],
-						priority: 90,
-						clickable: true,
-					},
-					{
 						id: "cwd",
-						icon: "📁",
+						icon: "",
 						text: projectName(ctx.cwd),
 						background: "customMessageBg",
 						foreground: "text",
@@ -402,7 +412,7 @@ function installFooter(
 				if (branch) {
 					segments.push({
 						id: "branch",
-						icon: "🌿",
+						icon: "",
 						text: branch,
 						background: "toolSuccessBg",
 						foreground: "success",
