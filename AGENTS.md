@@ -22,6 +22,36 @@
 
 **Clean up after yourself.** Remove agent-created debug logs, experiments, temporary files, and other disposable leftovers before you're done. Do not delete supplied project or task materials merely because they were used during the work. Leave files cleaner than you found them without destroying source context.
 
+## Subagent policy
+
+Parent agent owns task, decisions, edits, validation, and final response. Do not delegate implementation unless user explicitly requests it.
+
+Standing authorization applies only to scout and reviewer use described below. Default mode is `subagents: auto` when prompt does not specify another mode.
+
+Before substantive code work, launch at most one fresh-context `scout` when finding relevant entry points, ownership, data flow, callers, or tests would otherwise require broad repository exploration. Skip scout when likely target is known, task is trivial, request is informational, or one or two direct reads should be enough.
+
+Scout must not edit project or source files. It may write its configured report artifact. Ask for concise findings containing relevant files, symbols, relationships, risks, and recommended parent reads. Parent must read source needed for any edit instead of trusting scout summary alone.
+
+After parent makes substantive behavioral, code, test, automation, or configuration changes, launch one fresh-context `reviewer`. Skip automatic review for trivial edits, formatting-only changes, or requests that explicitly disable review.
+
+Reviewer must use inherited parent model at high thinking. Give reviewer a short brief with original goal, accepted constraints, and success criteria. Reviewer must inspect current instructions, repository state, changed files, diff, and validation evidence directly. Do not fork parent conversation by default.
+
+Reviewer must not edit files. Require concise, evidence-backed findings with file and line references. Parent decides which findings are valid and applies fixes directly. Do not enter review loop unless user requests one.
+
+Do not report completion with unresolved scout or reviewer runs. Consume results and report their disposition in same task.
+
+Exact `subagents:` directive in user prompt overrides default mode:
+
+- `subagents: none`: parent works directly with no child agents.
+- `subagents: scout`: force one scout, then parent completes task without automatic reviewer unless separately requested.
+- `subagents: review`: parent works directly, then force one reviewer.
+- `subagents: full`: force scout, parent implementation, then reviewer.
+- `subagents: auto`: use default policy.
+
+Natural-language equivalents also apply, including "do this directly", "scout first", "review after", and "run full scout and review pass". Exact `subagents:` directive wins if wording conflicts.
+
+Use fresh review context unless user explicitly asks reviewer to inherit full conversation context. A request such as "review with conversation context" authorizes forked review for that task only.
+
 ## Project task tracking
 
 Before substantive work, check whether the request belongs to an existing Org project under `~/org/work/`. Do this before research, installation, edits, or other changes. The check applies to repository work and to related package, configuration, automation, or service changes, even when affected files live outside the repository.
