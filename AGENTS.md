@@ -36,7 +36,7 @@ Scout must not edit project or source files. It may write its configured report 
 
 Use fresh-context `oracle` before editing only when a substantial task needs planning or a strong second opinion. Good reasons include unclear architecture, meaningful design tradeoffs, multi-stage implementation, or broad changes across several components. Skip oracle for routine work, obvious bugs, trivial edits, and tasks whose implementation path is already clear.
 
-Oracle uses Astra at high thinking and stays read-only. Give it the user goal, relevant constraints, scout findings when available, and enough source context to reason about the task. Ask for a concise proposed plan, risks, and important decisions. Parent accepts or rejects the advice. When parent accepts a useful oracle plan, record it in the existing Org project task before implementation. Oracle must not edit the Org file or implement changes.
+Oracle uses Astra at high thinking and stays read-only. Defer Astra oracle launches until codex-lb 1.25.0 is installed and verified; normal `subagents: auto` must not depend on Astra. Give it the user goal, relevant constraints, scout findings when available, and enough source context to reason about the task. Ask for a concise proposed plan, risks, and important decisions. Parent accepts or rejects the advice. When parent accepts a useful oracle plan, record it in the existing Org project task before implementation. Oracle must not edit the Org file or implement changes.
 
 After parent makes substantive behavioral, code, test, automation, or configuration changes, launch one fresh-context `reviewer`. Skip automatic review for trivial edits, formatting-only changes, or requests that explicitly disable review.
 
@@ -52,7 +52,7 @@ Exact `subagents:` directive in user prompt overrides default mode:
 - `subagents: scout`: force one scout, then parent completes task without automatic oracle or reviewer unless separately requested.
 - `subagents: review`: parent works directly, then force one reviewer.
 - `subagents: full`: force scout, parent implementation, then reviewer. This does not invoke oracle.
-- `subagents: plan`: force an Astra oracle before implementation. Scout remains need-based, and substantive work still gets normal review.
+- `subagents: plan`: unavailable until codex-lb 1.25.0; do not launch Astra today. Keep the oracle configuration for later verification.
 - `subagents: auto`: use default policy.
 
 Natural-language equivalents also apply, including "do this directly", "scout first", "review after", "run full scout and review pass", "plan this first", and "use Astra to plan". Exact `subagents:` directive wins if wording conflicts.
